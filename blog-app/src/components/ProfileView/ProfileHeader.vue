@@ -222,35 +222,12 @@
                 </b-tab>
                 <b-tab :disabled="!isFollowing && !isCurrentUser">
                     <template v-slot:title>
-                        <b-icon-people class="mr-2"></b-icon-people>
-                        <span>Friends</span>
-                    </template>
-                    <div class="row friends-search">
-                        <b-nav-form class="mb-3">
-                            <b-input-group prepend="@">
-                                <b-form-input placeholder="Username"></b-form-input>
-                            </b-input-group>
-                        </b-nav-form>
-                    </div>
-                    <div class="my-scrollable-cards-container">
-                        <b-list-group style="max-width: 300px; margin: 1% 0 1% 0; width: 300px">
-                            <div v-for="(card, index) in cards" :key="index">
-                                <b-list-group-item class="d-flex align-items-center">
-                                    <b-avatar class="mr-3"></b-avatar>
-                                    <span class="mr-auto">{{ card.title }}</span>
-                                </b-list-group-item>
-                            </div>
-                        </b-list-group>
-                    </div>
-                </b-tab>
-                <b-tab :disabled="!isFollowing && !isCurrentUser">
-                    <template v-slot:title>
                         <b-icon-newspaper class="mr-2"></b-icon-newspaper>
-                        <span>Blogs</span>
+                        <span>Blogs ({{ blogs.length }})</span>
                     </template>
                     <b-row class="d-flex justify-content-start">
                         <div v-for="(blog, index) in blogs" :key="index" style="width: 30%; margin-right: 3%">
-                            <profile-blog-card :blogDetails="blog"></profile-blog-card>
+                            <profile-blog-card @delete-blog="deleteBlog" :blogDetails="blog"></profile-blog-card>
                         </div>
                     </b-row>
                 </b-tab>
@@ -550,7 +527,6 @@ export default {
                     'x-access-token': localStorage.getItem('token')
                 }
             }).then((response) => {
-                console.log(response.data)
                 if (response.data.success == false) {
                     this.loading = false;
                 }
@@ -621,6 +597,12 @@ export default {
                 console.log(error);
             })
         },
+
+        deleteBlog(blog_id) {
+            this.blogs = this.blogs.filter((item) => {
+                return item.blog_id != blog_id;
+            })
+        },
     },
     computed: {
         validateDescriptionUpdate() {
@@ -653,7 +635,7 @@ export default {
             this.getFollowRequests();
             this.checkIfFollowing();
             this.getAllBlogs();
-        }
+        },
     }
 }
 </script>
