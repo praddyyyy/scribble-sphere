@@ -69,3 +69,20 @@ def check_like(user_id, blog_id):
 def get_likes_count(blog_id):
     likes = Likes.query.filter_by(liked_post=blog_id).all()
     return jsonify({'count': len(likes), 'success': True})
+
+
+# Route for displaying like count of all blogs of a user
+
+
+@app.route(version + '/likes-count/all-blogs', methods=['GET'])
+@token_required
+def get_likes_count_all(current_user):
+    blogs = Blogs.query.filter_by(user_id=current_user.id).all()
+    data = []
+    for blog in blogs:
+        temp = {}
+        temp['blog_id'] = blog.id
+        temp['likes_count'] = len(
+            Likes.query.filter_by(liked_post=blog.id).all())
+        data.append(temp)
+    return jsonify({'data': data, 'success': True})
