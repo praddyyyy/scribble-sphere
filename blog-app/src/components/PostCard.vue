@@ -26,10 +26,15 @@
             <img :src="getImageSrc(post.image)" width="100%" height="100%" alt="">
         </div>
         <div class="post-buttons">
-            <b-icon-heart v-if="!liked" class="h4" style="margin: 1%" @click="likePost"></b-icon-heart>
-            <b-icon-heart-fill variant="danger" v-if="liked" class="h4" style="margin: 1%"
-                @click="dislikePost"></b-icon-heart-fill>
-            <b-icon-bookmark class="h4" style="margin: 1%"></b-icon-bookmark>
+            <div class="d-flex m-0 ml-1">
+                <b-icon-heart v-if="!liked" class="h4" style="margin: 1%" @click="likePost"></b-icon-heart>
+                <b-icon-heart-fill variant="danger" v-if="liked" class="h4" style="margin: 1%"
+                    @click="dislikePost"></b-icon-heart-fill>
+                <p class="m-0 ml-2">{{ likesCount }}</p>
+            </div>
+            <b-icon-bookmark v-if="!bookmarked" class="h4" style="margin: 1%" @click="bookmarkPost"></b-icon-bookmark>
+            <b-icon-bookmark-fill variant="dark" v-if="bookmarked" class="h4" style="margin: 1%"
+                @click="unBookmarkPost"></b-icon-bookmark-fill>
         </div>
     </div>
 </template>
@@ -50,7 +55,9 @@ export default {
     },
     data() {
         return {
-            liked: false
+            liked: false,
+            bookmarked: false,
+            likesCount: 0
         }
     },
     components: {
@@ -91,16 +98,71 @@ export default {
                 .catch(error => {
                     console.log(error)
                 })
+        },
+
+        async getLikes() {
+            await axios.get(`http://localhost:5000/api/v1/likes-count/${this.post.blog_id}`)
+                .then((response) => {
+                    this.likesCount = response.data.count
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+        },
+
+        async bookmarkPost() {
+            await axios.post(`http://localhost:5000/api/v1/bookmark/${this.post.blog_id}/${this.user_id}`)
+                .then(() => {
+                    this.bookmarked = true
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+        },
+
+        async unBookmarkPost() {
+            await axios.delete(`http://localhost:5000/api/v1/bookmark/${this.post.blog_id}/${this.user_id}/delete`)
+                .then(() => {
+                    this.bookmarked = false
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+        },
+
+        async checkIfBookmarked() {
+            await axios.get(`http://localhost:5000/api/v1/bookmark/${this.post.blog_id}/${this.user_id}/check`)
+                .then((response) => {
+                    this.bookmarked = response.data.success
+                })
+                .catch(error => {
+                    console.log(error)
+                })
         }
+
     },
-    mounted() {
-        axios.get(`http://localhost:5000/api/v1/like/${this.user_id}/${this.post.blog_id}/check`)
+    async mounted() {
+        await axios.get(`http://localhost:5000/api/v1/like/${this.user_id}/${this.post.blog_id}/check`)
             .then((response) => {
                 this.liked = response.data.success
             })
             .catch(error => {
                 console.log(error)
             })
+
+        await this.checkIfBookmarked()
+
+        await this.getLikes()
+    },
+
+    watch: {
+        liked() {
+            if (this.liked) {
+                this.likesCount += 1
+            } else {
+                this.likesCount -= 1
+            }
+        }
     }
 }
 </script>
