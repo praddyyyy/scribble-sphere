@@ -21,11 +21,13 @@ from routes import blogs
 from routes import user_profile
 from routes import follows
 from routes import likes
+from routes import bookmarks
 from models import user_model
 from models import blogs_model
 from models import user_profile_model
 from models import follow_model
 from models import likes_model
+from models import bookmark_model
 
 # uncomment to override the existing database
 
