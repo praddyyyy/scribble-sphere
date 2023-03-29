@@ -49,7 +49,8 @@ def get_blogs(current_user):
             image_path = os.path.join('static', 'images', blog.image)
             with open(image_path, 'rb') as f:
                 image_data = f.read()
-                base64_encoded_data = base64.b64encode(image_data).decode('utf-8')
+                base64_encoded_data = base64.b64encode(
+                    image_data).decode('utf-8')
             blog_data['image'] = base64_encoded_data
             blog_data['author'] = blog.author
             blog_data['created_at'] = blog.created_at
@@ -103,7 +104,6 @@ def get_blog(current_user, blog_id):
     return jsonify({'blog': blog_data})
 
 
-
 # Route to get all blogs of a user
 @app.route(version + '/user-blogs/<user_id>', methods=['GET'])
 @token_required
@@ -130,3 +130,28 @@ def get_user_blogs(current_user, user_id):
             mimetype="application/json"
         )
     return jsonify({'blogs': output})
+
+
+# Route for deleting a blog
+
+@app.route(version + '/blog/<blog_id>', methods=['DELETE'])
+def delete_blog(blog_id):
+    blog = Blogs.query.filter_by(id=blog_id).first()
+    if not blog:
+        return jsonify({'message': 'No blog found!'})
+    db.session.delete(blog)
+    db.session.commit()
+    return jsonify({'message': 'Blog deleted'})
+
+# Route for updating caption of a blog
+
+
+@app.route(version + '/blog/update-caption/<blog_id>', methods=['PUT'])
+def update_blog(blog_id):
+    blog = Blogs.query.filter_by(id=blog_id).first()
+    if not blog:
+        return jsonify({'message': 'No blog found!'})
+    caption = request.form['caption']
+    blog.caption = caption
+    db.session.commit()
+    return jsonify({'message': 'Blog updated'})
