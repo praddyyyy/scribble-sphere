@@ -225,6 +225,14 @@
                         <b-icon-newspaper class="mr-2"></b-icon-newspaper>
                         <span>Blogs ({{ blogs.length }})</span>
                     </template>
+                    <div>
+                        <b-modal id="export-modal" title="Export Profile Data">
+                            <export-page :blogDetails="blogs"></export-page>
+                        </b-modal>
+                        <b-button v-if="isCurrentUser" class="m-0 mb-2" float-right variant="success"
+                            @click="$bvModal.show('export-modal')">Export
+                            Data</b-button>
+                    </div>
                     <b-row class="d-flex justify-content-start">
                         <div v-for="(blog, index) in blogs" :key="index" style="width: 30%; margin-right: 3%">
                             <profile-blog-card @delete-blog="deleteBlog" :blogDetails="blog"></profile-blog-card>
@@ -239,9 +247,10 @@
 <script>
 import axios from 'axios';
 import ProfileBlogCard from '../ProfileBlogCard.vue';
+import ExportPage from '../ExportPage.vue';
 
 export default {
-    components: { ProfileBlogCard },
+    components: { ProfileBlogCard, ExportPage },
     props: {
         userDetails: {
             required: true
