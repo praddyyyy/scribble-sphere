@@ -32,7 +32,7 @@ export default {
       isAuthenticated: 'IS_AUTHENTICATED',
     })
   },
-  async mounted() {
+  async created() {
     if (this.isAuthenticated) {
       this.isUserAuthenticated = true
       await axios.get('http://localhost:5000/api/v1/current-user', {
