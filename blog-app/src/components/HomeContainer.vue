@@ -33,8 +33,10 @@
                                 </router-link>
                             </b-nav-item>
                             <b-nav-item class="home-nav-item">
-                                <b-icon-bookmark></b-icon-bookmark>
-                                Bookmarks
+                                <router-link :to="{ path: '/dashboard/bookmarks' }">
+                                    <b-icon-bookmark></b-icon-bookmark>
+                                    Bookmarks
+                                </router-link>
                             </b-nav-item>
                         </b-nav>
                     </div>
@@ -148,7 +150,7 @@ export default {
         }
 
     },
-    async mounted() {
+    async created() {
         await this.getFollowRequests()
     }
 
