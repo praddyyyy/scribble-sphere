@@ -2,9 +2,34 @@
     <div>
         <div class="title-card mt-3">
             <h4 class="m-3 ">Connect with people around you!</h4>
-        </div>
-        <div v-for="(user, index) in users" :key="index">
-            <user-card :userDetails="user"></user-card>
+            <div>
+                <b-tabs content-class="mt-3" justified>
+                    <b-tab active>
+                        <template #title>
+                            All ({{ notFollowing.length }})
+                        </template>
+                        <div v-for="(user, index) in notFollowing" :key="index">
+                            <user-card :userDetails="user"></user-card>
+                        </div>
+                    </b-tab>
+                    <b-tab>
+                        <template #title>
+                            Followers ({{ followers.length }})
+                        </template>
+                        <div v-for="(user, index) in followers" :key="index">
+                            <user-card :follower="true" :userDetails="user"></user-card>
+                        </div>
+                    </b-tab>
+                    <b-tab>
+                        <template #title>
+                            Following ({{ following.length }})
+                        </template>
+                        <div v-for="(user, index) in following" :key="index">
+                            <user-card :userDetails="user"></user-card>
+                        </div>
+                    </b-tab>
+                </b-tabs>
+            </div>
         </div>
     </div>
 </template>
@@ -19,7 +44,9 @@ export default {
     data() {
         return {
             users: [],
-            following: []
+            notFollowing: [],
+            following: [],
+            followers: [],
         }
     },
     methods: {
@@ -33,19 +60,39 @@ export default {
             })
         },
 
+        async getNotFollowing() {
+            await axios.get(`http://localhost:5000/api/v1/following/${this.$store.state.user_id}`).then((res) => {
+                this.notFollowing = this.users.filter(user => user.u_id != this.$store.state.user_id && !res.data.data.some(following => following.following_id === user.u_id))
+            }).catch((err) => {
+                console.log(err)
+            })
+        },
+
         async getFollowing() {
-            await axios.get(`http://localhost:5000/api/v1/following/${this.$store.state.user_id}`,).then((res) => {
-                this.users = this.users.filter(user => user.u_id != this.$store.state.user_id && !res.data.data.some(following => following.following_id === user.u_id))
+            await axios.get(`http://localhost:5000/api/v1/following/${this.$store.state.user_id}`).then((res) => {
+                this.following = this.users.filter(user => user.u_id != this.$store.state.user_id && res.data.data.some(following => following.following_id === user.u_id))
+            }).catch((err) => {
+                console.log(err)
+            })
+        },
+
+        async getFollowers() {
+            await axios.get(`http://localhost:5000/api/v1/followers/${this.$store.state.user_id}`).then((res) => {
+                this.followers = this.users.filter(user => user.u_id != this.$store.state.user_id && res.data.data.some(follower => follower.follower_id === user.u_id))
             }).catch((err) => {
                 console.log(err)
             })
         },
     },
-    async mounted() {
+    async created() {
         await this.getAllUsers()
 
+        await this.getNotFollowing()
+
         await this.getFollowing()
-    }
+
+        await this.getFollowers()
+    },
 }
 </script>
 
@@ -58,9 +105,5 @@ export default {
     padding: 1%;
     background-color: #fff;
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
 }
 </style>
