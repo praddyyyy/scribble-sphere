@@ -33,6 +33,10 @@ const routes = [
       {
         path: 'people',
         component: () => import(/* webpackChunkName: "about" */ '../components/PeopleComponent.vue')
+      },
+      {
+        path: 'bookmarks',
+        component: () => import(/* webpackChunkName: "about" */ '../components/BookmarksComponent.vue')
       }
     ]
   },
