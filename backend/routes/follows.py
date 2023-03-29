@@ -128,3 +128,20 @@ def follow_request_sent(sender_id, receiver_id):
         return jsonify({'message': 'Follow request not sent', 'success': False})
 
     return jsonify({'message': 'Follow request sent', 'success': True})
+
+
+# Remove user from followers
+
+
+@app.route(version + '/remove-follower/<int:sender_id>/<int:receiver_id>', methods=['DELETE'])
+def remove_follower(sender_id, receiver_id):
+    follow_request = FollowRequest.query.filter_by(
+        sender_id=sender_id, receiver_id=receiver_id, status='accepted').first()
+
+    if not follow_request:
+        return jsonify({'message': 'Follow request not found.'})
+
+    db.session.delete(follow_request)
+    db.session.commit()
+
+    return jsonify({'message': 'Removed follower.', 'success': True})
