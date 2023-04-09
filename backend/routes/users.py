@@ -110,3 +110,29 @@ def get_all_users(current_user):
             mimetype="application/json"
         )
     return jsonify({'users': output})
+
+
+# Route to search for a user
+@app.route(version + '/search-user', methods=['GET'])
+@token_required
+def search_user(current_user):
+    # getting the search query from the url
+    search = request.args.get('search')
+    # using try catch for sys error and check pass
+    users = Users.query.filter(
+        Users.username.like("%" + search + "%")).all()
+    if not users:
+        return jsonify({'message': "No Users Found"})
+    output = []
+    for user in users:
+        user_data = {}
+        user_data['u_id'] = user.id
+        user_data['firstName'] = user.firstName
+        user_data['lastName'] = user.lastName
+        user_data['email'] = user.email
+        user_data['username'] = user.username
+        user_data['bio'] = user.bio
+        output.append(user_data)
+    if not len(output):
+        return jsonify({'message': "No Users Found"})
+    return jsonify({'users': output})
