@@ -13,4 +13,4 @@ class Blogs(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     def __repr__(self):
-        return '<Post %r>' % self.title
+        return '<Blog %r>' % self.caption
