@@ -1,0 +1,2 @@
+def dailyReport():
+    print('hi')
