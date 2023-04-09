@@ -20,6 +20,3 @@ def send_email(email, subject, message):
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
         server.login(email_address, email_password)
         server.send_message(msg)
-
-
-send_email('pradeeshwar10@gmail.com', 'REPORT', 'This is a test email')

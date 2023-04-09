@@ -67,7 +67,6 @@ export default {
                 headers: { 'x-access-token': localStorage.getItem('token') }
             }).then((res) => {
                 this.users = res.data.users
-                console.log(this.users)
             }).catch((err) => {
                 console.log(err)
             })
