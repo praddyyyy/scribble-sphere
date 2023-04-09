@@ -71,11 +71,12 @@ def get_blogs(current_user):
     if blog_keys:
         print('HIT REDIS CACHE')
        # Filter the blog keys to only include those belonging to the current user
-        user_blog_keys = [key for key in blog_keys if json.loads(redis_cli.get(key))['user_id'] == current_user.id]
-        
+        user_blog_keys = [key for key in blog_keys if json.loads(
+            redis_cli.get(key))['user_id'] == current_user.id]
+
         # Use the Redis get() method to get the values of the filtered blog keys
         blog_values = [redis_cli.get(key) for key in user_blog_keys]
-        
+
         # Deserialize the blog values from JSON to Python objects
         blogs = [json.loads(value) for value in blog_values]
         for blog in blogs:
@@ -118,7 +119,7 @@ def get_blogs(current_user):
             status=401,
             mimetype="application/json"
         )
-    
+
     return jsonify({'blogs': cache_output if len(cache_output) else db_output})
 
 
@@ -178,11 +179,12 @@ def get_user_blogs(current_user, user_id):
     if blog_keys:
         print('HIT REDIS CACHE')
        # Filter the blog keys to only include those belonging to the current user
-        user_blog_keys = [key for key in blog_keys if json.loads(redis_cli.get(key))['user_id'] == user_id]
-        
+        user_blog_keys = [key for key in blog_keys if json.loads(redis_cli.get(key))[
+            'user_id'] == user_id]
+
         # Use the Redis get() method to get the values of the filtered blog keys
         blog_values = [redis_cli.get(key) for key in user_blog_keys]
-        
+
         # Deserialize the blog values from JSON to Python objects
         blogs = [json.loads(value) for value in blog_values]
         for blog in blogs:
@@ -199,7 +201,6 @@ def get_user_blogs(current_user, user_id):
             blog_data['created_at'] = blog['created_at']
             blog_data['author_id'] = blog['user_id']
             cache_output.append(blog_data)
-    print(cache_output)
     if not len(cache_output):
         print('HIT DATABASE')
         blogs = Blogs.query.filter_by(user_id=user_id).all()
@@ -210,7 +211,8 @@ def get_user_blogs(current_user, user_id):
             image_path = os.path.join('static', 'images', blog.image)
             with open(image_path, 'rb') as f:
                 image_data = f.read()
-                base64_encoded_data = base64.b64encode(image_data).decode('utf-8')
+                base64_encoded_data = base64.b64encode(
+                    image_data).decode('utf-8')
             blog_data['image'] = base64_encoded_data
             blog_data['author'] = blog.author
             blog_data['created_at'] = blog.created_at
@@ -229,6 +231,12 @@ def get_user_blogs(current_user, user_id):
 
 @app.route(version + '/blog/<blog_id>', methods=['DELETE'])
 def delete_blog(blog_id):
+    # Check if the blog exists in Redis
+    blog_key = f'blog:{blog_id}'
+    if not redis_cli.exists(blog_key):
+        return jsonify({'error': 'Blog not found'}), 404
+    # Delete the blog from Redis
+    redis_cli.delete(blog_key)
     blog = Blogs.query.filter_by(id=blog_id).first()
     if not blog:
         return jsonify({'message': 'No blog found!'})
