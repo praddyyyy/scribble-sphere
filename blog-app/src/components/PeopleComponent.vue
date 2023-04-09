@@ -8,7 +8,15 @@
                         <template #title>
                             All ({{ notFollowing.length }})
                         </template>
+                        <b-input-group prepend="@">
+                            <b-form-input type="search" placeholder="Username" v-model="searchTerm"
+                                @input="searchUsers"></b-form-input>
+                        </b-input-group>
                         <div v-for="(user, index) in notFollowing" :key="index">
+                            <user-card :userDetails="user"></user-card>
+                        </div>
+                        <h4>SEARCH RESULTS</h4>
+                        <div v-for="(user, index) in searchedUsers" :key="index + 1">
                             <user-card :userDetails="user"></user-card>
                         </div>
                     </b-tab>
@@ -37,6 +45,8 @@
 <script>
 import axios from 'axios';
 import UserCard from './UserCard.vue';
+import LRUCache from 'lru-cache'
+
 export default {
     components: {
         UserCard
@@ -47,6 +57,8 @@ export default {
             notFollowing: [],
             following: [],
             followers: [],
+            searchTerm: '',
+            searchedUsers: []
         }
     },
     methods: {
@@ -55,6 +67,7 @@ export default {
                 headers: { 'x-access-token': localStorage.getItem('token') }
             }).then((res) => {
                 this.users = res.data.users
+                console.log(this.users)
             }).catch((err) => {
                 console.log(err)
             })
@@ -83,6 +96,28 @@ export default {
                 console.log(err)
             })
         },
+
+        async searchUsers() {
+            if (this.searchTerm.length < 1) {
+                this.searchedUsers = []
+                return
+            }
+
+            else {
+                if (this.cache.has(this.searchTerm)) {
+                    this.searchedUsers = this.cache.get(this.searchTerm)
+                    return
+                } else {
+                    await axios.get(`http://localhost:5000/api/v1/search-user?search=${this.searchTerm}`, {
+                        headers: { 'x-access-token': localStorage.getItem('token') }
+                    }).then((res) => {
+                        this.searchedUsers = res.data.users
+                    }).catch((err) => {
+                        console.log(err)
+                    })
+                }
+            }
+        }
     },
     async created() {
         await this.getAllUsers()
@@ -92,6 +127,10 @@ export default {
         await this.getFollowing()
 
         await this.getFollowers()
+
+        this.cache = new LRUCache({
+            max: 100,
+        })
     },
 }
 </script>
