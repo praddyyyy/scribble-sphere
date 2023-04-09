@@ -1,4 +1,4 @@
-from routes import app, version, db
+from routes import app, version, db, redis_cli
 from flask import request, jsonify, Response
 from flask_cors import CORS
 from models.blogs_model import Blogs
@@ -81,8 +81,16 @@ def create_blog(current_user):
                      author=author, image=image, user_id=user_id)
     db.session.add(new_blog)
     db.session.commit()
-    return jsonify({'message': 'Blog created'})
 
+    blog_data = {
+            'caption': caption,
+            'author': author,
+            'image': image,
+            'user_id': user_id,
+        }
+    redis_cli.hmset(f'blog:{new_blog.id}', json.loads(blog_data))
+
+    return jsonify({'message': 'Blog created'})
 
 @app.route(version + '/blog/<blog_id>', methods=['GET'])
 @token_required

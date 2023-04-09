@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_uploads import UploadSet, IMAGES, configure_uploads
+import redis
 
 db = SQLAlchemy()
 app = Flask(__name__)
@@ -11,7 +12,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.sqlite3'
 app.config['UPLOADED_PHOTOS_DEST'] = 'static/images'
 photos = UploadSet('photos', IMAGES)
 version = "/api/v1"
-
+redis_cli = redis.Redis(host="localhost", port=6379, password="", decode_responses=True)
 
 configure_uploads(app, photos)
 
