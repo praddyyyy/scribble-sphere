@@ -29,12 +29,6 @@
                     </template>
                 </b-input-group>
             </b-form-group>
-
-            <b-form-group id="input-group-4" v-slot="{ ariaDescribedby }">
-                <b-form-checkbox-group v-model="form.checked" id="checkboxes-4" :aria-describedby="ariaDescribedby">
-                    <b-form-checkbox value="remember">Remember Me</b-form-checkbox>
-                </b-form-checkbox-group>
-            </b-form-group>
             <p style="margin: 2% 0">Don't have an account? <a @click="$emit('create-account')">Create one</a></p>
 
             <b-button type="submit" variant="primary">Login</b-button>
@@ -61,30 +55,13 @@ export default {
         }),
         onSubmit(event) {
             event.preventDefault()
-            // const path = 'http://localhost:5000/api/v1/login';
 
             var formData = new FormData();
             formData.append('username', this.form.username);
             formData.append('password', this.form.password);
 
             this.login(formData)
-            // axios({
-            //     method: 'post',
-            //     url: path,
-            //     data: formData,
-            //     headers: { 'Content-Type': 'multipart/form-data' }
-            // })
-            //     .then((res) => {
-            //         this.msg = res.data;
-            //         console.log("API Result: ", this.msg)
-            //         if (res.status === 200) {
-            //             this.$router.push('/dashboard')
-            //         }
-            //     })
-            //     .catch((error) => {
-            //         // eslint-disable-next-line
-            //         console.error(error);
-            //     });
+
         },
         onReset(event) {
             event.preventDefault()
