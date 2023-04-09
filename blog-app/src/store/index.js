@@ -55,6 +55,10 @@ export default new Vuex.Store({
     async LOGIN_ACTION({ commit }, payload) {
       try {
         const { data } = await axios.post('http://localhost:5000/api/v1/login', payload)
+        if (data.message === 'Invalid Credentials') {
+          alert('Invalid Credentials')
+          return
+        }
         localStorage.setItem('token', data.token)
         const user_id = JSON.parse(atob(data.token.split('.')[1])).u_id
         localStorage.setItem('user_id', user_id)
