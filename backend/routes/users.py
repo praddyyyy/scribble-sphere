@@ -18,17 +18,17 @@ def login():
     try:
         user = Users.query.filter_by(username=login["username"]).first()
         if not user:
-            return jsonify({'message': "User doesn't exist"})
+            return jsonify({'message': "Invalid Credentials"})
         if user.password == login["password"]:
             token = token_generate(login["username"])
 
             return jsonify({"token": token}), 200
 
         else:
-            return jsonify({"message": "Wrong password"}), 404
+            return jsonify({"message": "Invalid Credentials"}), 404
 
     except:
-        return jsonify({"message": "User not found"}), 404
+        return jsonify({"message": "Invalid Credentials"}), 404
 
 
 @app.route(version + '/signup', methods=["POST"])
